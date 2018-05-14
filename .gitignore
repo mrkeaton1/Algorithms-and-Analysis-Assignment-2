@@ -1,0 +1,2 @@
+# we don't want to track any locally generated compile output files (in any directory depth)
+**.class

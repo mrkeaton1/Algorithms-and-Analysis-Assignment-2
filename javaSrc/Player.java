@@ -40,3 +40,12 @@ public interface Player
 	abstract public boolean receiveAnswer(Guess currGuess, boolean answer);
 
 } // end of interface Player
+
+abstract class ParentPlayer
+{
+	public void loadGame()
+		 {
+			 return;
+		 }
+
+}

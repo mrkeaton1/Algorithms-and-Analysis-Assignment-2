@@ -7,7 +7,7 @@ import java.io.*;
  * You may implement/extend other interfaces or classes, but ensure ultimately
  * that this class implements the Player interface (directly or indirectly).
  */
-public class RandomGuessPlayer implements Player
+public class RandomGuessPlayer extends ParentPlayer implements Player
 {
 
     /**
