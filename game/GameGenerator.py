@@ -21,16 +21,20 @@ faceShape = ('round', 'ovular', 'triangular', 'square', 'pentagonal', 'diamond',
 #dictionary of all attributes with attribute names for keys
 attributes = {'hairLength':hairLength, 'glasses':glasses, 'facialHair':facialHair, 'eyeColor':eyeColor, 'pimples':pimples, 'hat':hat, 'hairColor':hairColor, 'noseShape':noseShape, 'faceShape':faceShape}
 
-gFile = open(input('enter file name: ') + '.config', 'w')
+filename = input('enter file name: ')
+configFile = open(filename + '.config', 'w')
 
 for key, val in attributes.items():
-    gFile.write(key + ' ')
+    configFile.write(key + ' ')
     for trait in val:
-        gFile.write(trait + ' ')
-    gFile.write('\n')
+        configFile.write(trait + ' ')
+    configFile.write('\n')
 
 for i in range(0,NUMPLAYERS):
-    gFile.write('\n')
-    gFile.write('P' + repr(i+1) + '\n')
+    configFile.write('\n')
+    configFile.write('P' + str(i+1) + '\n')
     for key, val in attributes.items():
-        gFile.write(key + ' ' + val[r.randint(0,len(val) - 1)] + '\n')
+        configFile.write(key + ' ' + val[r.randint(0,len(val) - 1)] + '\n')
+
+chosenFile = open(filename + '.chosen', 'w')
+chosenFile.write('P' + str(r.randint(1,NUMPLAYERS)) + ' ' + 'P' + str(r.randint(1,NUMPLAYERS)))
