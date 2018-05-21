@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.*;
 
 /**
  * Binary-search based guessing player.
@@ -9,6 +10,10 @@ import java.io.*;
  */
 public class BinaryGuessPlayer extends ParentPlayer implements Player
 	{
+	// this holds the number of characters that have a value of a given attribute
+	// => HashMap of Key:Attribute, Values:(HashMap of Key:Attribute-Value, Value:Count)
+	private HashMap<String,HashMap<String,Integer>> attributeCount;
+
 
 	/**
 	 * Loads the game configuration from gameFilename, and also store the chosen
@@ -25,6 +30,18 @@ public class BinaryGuessPlayer extends ParentPlayer implements Player
 		{
 		super(gameFilename);
 		this.chosenCharacter = chosenName;
+		attributeCount = new HashMap<String,HashMap<String,Integer>>(possibleAttr.size());
+
+		// initialize attributeCount HashMap
+		for (Map.Entry<String,String[]> entry : possibleAttr.entrySet())
+			{
+			attributeCount.put(entry.getKey(), new HashMap<String,Integer>());
+			for(String value : entry.getValue())
+				{
+				attributeCount.get(entry.getKey()).put(value,0);
+				}
+			}
+
 		// testing:
 		printGameAttributes();
 		printGameCharacters();
@@ -53,7 +70,27 @@ public class BinaryGuessPlayer extends ParentPlayer implements Player
 
 	private String determineHalfingAttribute()
 		{
-		
+		// => HashMap of Key:Attribute, Values:(HashMap of Key:Attribute-Value, Value:Count)
+		HashMap<String,Integer> currentValue;
+
+		// // @QUESTION why doesnt this work with a foreach loop?
+		// for (HashMap character : characterList)
+			// {
+			// for (Map.Entry<String,String> entry : character.entrySet())
+			
+		for (int i=0;i<characterList.size();++i)
+			{
+			for (Map.Entry<String,String> entry : characterList.get(i).entrySet())
+				{
+				currentValue = attributeCount.get(entry.getKey());
+				currentValue.put(entry.getValue(), currentValue.get(entry.getValue())+1 );
+				}
+			}
+		for (Map.Entry<String,HashMap<String,Integer>> entry : attributeCount.entrySet())
+			{
+
+			}
+		return "";
 		}
 
 } // end of class BinaryGuessPlayer

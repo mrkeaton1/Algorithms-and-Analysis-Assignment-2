@@ -44,14 +44,15 @@ public interface Player
 abstract class ParentPlayer
 	{
 	private static final Boolean DEBUG = true;
-	List<HashMap<String,String>> characterAttr = new ArrayList<HashMap<String,String>>();								// list of hashmaps for the game characters (character number = list index -1), each of which maps their attributes to their values
-	HashMap<String,String[]> possibleAttr = new HashMap<String,String[]>();	// maps possible attributes to a list of their possible values
+	protected List<HashMap<String,String>> characterList = new ArrayList<HashMap<String,String>>();								// list of hashmaps for the game characters (character number = list index -1), each of which maps their attributes to their values
+	protected HashMap<String,String[]> possibleAttr = new HashMap<String,String[]>();	// maps possible attributes to a list of their possible values
 	protected String chosenCharacter = "";											// this should be set by constructor of Players who inherit from us
-
+	protected int numGameCharacters = 0;
 
 	protected ParentPlayer(String filename)
 		{
 		loadGame(filename);
+		numGameCharacters = characterList.size();
 		}
 
 	private void loadGame(String filename)
@@ -76,13 +77,13 @@ abstract class ParentPlayer
 				else {
 					if (newCharachter)												// we are in the middle of character description
 						{
-						characterAttr.get(characterAttr.size()-1).put(tokens[0],tokens[1]);
+						characterList.get(characterList.size()-1).put(tokens[0],tokens[1]);
 						continue;
 						}
 					else if (1==tokens.length && 'P' == tokens[0].charAt(0))		// double check ('P' could possibly be the start of a game description line) to make sure we are at the start of a character description block
 						{
 						newCharachter = true;
-						characterAttr.add(new HashMap<String,String>());
+						characterList.add(new HashMap<String,String>());
 						continue;
 						}
 					else {															// we are at a game description block
@@ -128,7 +129,7 @@ abstract class ParentPlayer
 		int characterNum = 1;
 		System.out.println("\nGame character set:");
 
-		for (HashMap hm : characterAttr)
+		for (HashMap hm : characterList)
 			{
 			Set keys = hm.keySet();
 			String key;
