@@ -44,7 +44,7 @@ public interface Player
 abstract class ParentPlayer
 	{
 	private static final Boolean DEBUG = true;
-	ArrayList<HashMap<String,String>> characterAttr;								// list of hashmaps for the game characters (character number = list index -1), each of which maps their attributes to their values
+	List<HashMap<String,String>> characterAttr = new ArrayList<HashMap<String,String>>();								// list of hashmaps for the game characters (character number = list index -1), each of which maps their attributes to their values
 	HashMap<String,String[]> possibleAttr = new HashMap<String,String[]>();	// maps possible attributes to a list of their possible values
 	protected String chosenCharacter = "";											// this should be set by constructor of Players who inherit from us
 
@@ -66,31 +66,34 @@ abstract class ParentPlayer
 
 			while ((line = reader.readLine()) != null)
 				{
-				tokens = line.split(delimiter,2);									// the pattern is applied only once, thus the returned array will be at most 2 long (containing all values of an attribute in the second element for the case of game description)
-				if (newCharachter && tokens[0].equals(""))							// we are at the end of a character description
+				tokens = line.split(delimiter,2);									// the pattern is applied only once, thus the returned array will be at most 2 long
+																					// (containing all values of an attribute in the second element for the case of game description)
+				if (tokens[0].equals(""))											// we are at the end of any description
 					{
 					newCharachter = false;
 					continue;
 					}
-				else if (newCharachter)												// we are in the middle of character description
-					{
-					characterAttr.get(characterAttr.size()-1).put(tokens[0],tokens[1]);
-					continue;
-					}
-				else if ('P' == tokens[0].charAt(0) && 1==tokens.length && !tokens[0].equals(""))	// double check to make sure we are at a character description block
-					{
-					newCharachter = true;
-					characterAttr.add(new HashMap<String,String>());
-					continue;
-					}
-				else {																// we are at a game description block
-					newCharachter = false;
-					possibleAttr.put(tokens[0],tokens[1].split(delimiter));
-					continue;
+				else {
+					if (newCharachter)												// we are in the middle of character description
+						{
+						characterAttr.get(characterAttr.size()-1).put(tokens[0],tokens[1]);
+						continue;
+						}
+					else if (1==tokens.length && 'P' == tokens[0].charAt(0))		// double check ('P' could possibly be the start of a game description line) to make sure we are at the start of a character description block
+						{
+						newCharachter = true;
+						characterAttr.add(new HashMap<String,String>());
+						continue;
+						}
+					else {															// we are at a game description block
+						newCharachter = false;
+						possibleAttr.put(tokens[0],tokens[1].split(delimiter));
+						continue;
+						}
 					}
 				}
 			long endTime = System.nanoTime();
-			if(DEBUG) System.out.println("Time to load file: " + (double)(endTime-startTime)*Math.pow(10,-9) + " s");
+			if(DEBUG) System.out.println("Time to load game config file: " + (double)(endTime-startTime)*Math.pow(10,-9) + " s");
 			}
 		catch (FileNotFoundException ex) {
 			System.err.println("File " + filename + " not found.");
@@ -110,24 +113,31 @@ abstract class ParentPlayer
 		{
 		Set keys = possibleAttr.keySet();
 		String key;
+		System.out.println("\nGame attribute set:");
+
 		for (Iterator it = keys.iterator(); it.hasNext(); )
 			{
 			key = (String) it.next();
-			System.out.println(key + possibleAttr.get(key).toString());
+			System.out.println(key + " - " + Arrays.toString(possibleAttr.get(key)));
 			}
 		return;
 		}
 
 	protected void printGameCharacters()
 		{
+		int characterNum = 1;
+		System.out.println("\nGame character set:");
+
 		for (HashMap hm : characterAttr)
 			{
 			Set keys = hm.keySet();
 			String key;
+			System.out.println("P" + characterNum++);
+
 			for (Iterator it = keys.iterator(); it.hasNext(); )
 				{
 				key = (String) it.next();
-				System.out.println(key + possibleAttr.get(key).toString());
+				System.out.println(key + " - " + Arrays.toString(possibleAttr.get(key)));
 				}
 			}
 		return;

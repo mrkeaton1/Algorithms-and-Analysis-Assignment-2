@@ -51,4 +51,9 @@ public class BinaryGuessPlayer extends ParentPlayer implements Player
 		return true;
 	} // end of receiveAnswer()
 
+	private String determineHalfingAttribute()
+		{
+		
+		}
+
 } // end of class BinaryGuessPlayer
