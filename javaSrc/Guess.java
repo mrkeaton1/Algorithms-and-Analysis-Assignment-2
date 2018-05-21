@@ -9,9 +9,9 @@
 // There are two types of guesses, one for asking if opponent’s chosen player has a certain attribute-value
 // pair, the other for asking if the chosen player is a certain person.
 // In the Guess class, there are three attributes, mType, mAttribute and mValue.
-// • When asking about attribute-value pair, set mType to Attribute and mAttribute and mValue to
+// - When asking about attribute-value pair, set mType to Attribute and mAttribute and mValue to
 // the asked attribute and value respectively.
-// • When asking about if the chosen player is someone, set mType to Person, mAttribute to “”
+// - When asking about if the chosen player is someone, set mType to Person, mAttribute to ""
 // (empty string) and mValue to the person’s name. See the Guess class for more details.
 
 public class Guess
