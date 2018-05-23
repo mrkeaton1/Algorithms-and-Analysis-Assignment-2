@@ -29,10 +29,13 @@ public class BinaryGuessPlayer extends ParentPlayer implements Player
 	public BinaryGuessPlayer(String gameFilename, String chosenName)
 		{
 		super(gameFilename);
-		this.chosenCharacter = chosenName;
-		attributeCount = new HashMap<String,HashMap<String,Integer>>(possibleAttr.size());
+
+		// initialize the chosen player, needed for answering questions
+		this.chosenCharacterName = chosenName;
+		this.chosenCharacterMap = leftCharactersList.get(Integer.parseInt(chosenCharacterName.substring(1)));	// substring = number of character, without the 'P'
 
 		// initialize attributeCount HashMap
+		attributeCount = new HashMap<String,HashMap<String,Integer>>(possibleAttr.size());
 		for (Map.Entry<String,String[]> entry : possibleAttr.entrySet())
 			{
 			attributeCount.put(entry.getKey(), new HashMap<String,Integer>());
@@ -43,9 +46,9 @@ public class BinaryGuessPlayer extends ParentPlayer implements Player
 			}
 
 		// testing:
-		printGameAttributes();
-		printGameCharacters();
-		} // end of BinaryGuessPlayer()
+		// printGameAttributes();
+		// printGameCharacters();
+		}
 
 
 	public Guess guess()
@@ -73,14 +76,14 @@ public class BinaryGuessPlayer extends ParentPlayer implements Player
 		// => HashMap of Key:Attribute, Values:(HashMap of Key:Attribute-Value, Value:Count)
 		HashMap<String,Integer> currentValue;
 
-		// // @QUESTION why doesnt this work with a foreach loop?
-		// for (HashMap character : characterList)
+		// // @QUESTION why doesnt the following work with a foreach loop?
+		// for (HashMap character : leftCharactersList)
 			// {
 			// for (Map.Entry<String,String> entry : character.entrySet())
-			
-		for (int i=0;i<characterList.size();++i)
+
+		for (int i=0;i<leftCharactersList.size();++i)
 			{
-			for (Map.Entry<String,String> entry : characterList.get(i).entrySet())
+			for (Map.Entry<String,String> entry : leftCharactersList.get(i).entrySet())
 				{
 				currentValue = attributeCount.get(entry.getKey());
 				currentValue.put(entry.getValue(), currentValue.get(entry.getValue())+1 );

@@ -44,15 +44,22 @@ public interface Player
 abstract class ParentPlayer
 	{
 	private static final Boolean DEBUG = true;
-	protected List<HashMap<String,String>> characterList = new ArrayList<HashMap<String,String>>();								// list of hashmaps for the game characters (character number = list index -1), each of which maps their attributes to their values
-	protected HashMap<String,String[]> possibleAttr = new HashMap<String,String[]>();	// maps possible attributes to a list of their possible values
-	protected String chosenCharacter = "";											// this should be set by constructor of Players who inherit from us
-	protected int numGameCharacters = 0;
+
+	protected List<HashMap<String,String>> leftCharactersList;						// list of hashmaps for the LEFTOVER game characters (character number = list index +1), each of which maps their attributes to their values
+	protected int numLeftCharacters = 0;
+	protected HashMap<String,String[]> possibleAttr;								// maps possible attributes to a list of their possible values
+
+	// this should be set by constructor of Player-classes who inherit from us
+	protected String chosenCharacterName = "";
+	protected HashMap<String,String> chosenCharacterMap;
 
 	protected ParentPlayer(String filename)
 		{
+		leftCharactersList = new ArrayList<HashMap<String,String>>();
+		possibleAttr = new HashMap<String,String[]>();
 		loadGame(filename);
-		numGameCharacters = characterList.size();
+		chosenCharacterMap = new HashMap<String,String>(possibleAttr.size());		// all characters should have all possible attributes
+		numLeftCharacters = leftCharactersList.size();								// in the beginning, all of the characters are considered
 		}
 
 	private void loadGame(String filename)
@@ -63,7 +70,7 @@ abstract class ParentPlayer
 			String line;
 			String delimiter = " ";
 			String[] tokens;
-			boolean newCharachter = false;
+			boolean newCharacter = false;
 
 			while ((line = reader.readLine()) != null)
 				{
@@ -71,23 +78,23 @@ abstract class ParentPlayer
 																					// (containing all values of an attribute in the second element for the case of game description)
 				if (tokens[0].equals(""))											// we are at the end of any description
 					{
-					newCharachter = false;
+					newCharacter = false;
 					continue;
 					}
 				else {
-					if (newCharachter)												// we are in the middle of character description
+					if (newCharacter)												// we are in the middle of character description
 						{
-						characterList.get(characterList.size()-1).put(tokens[0],tokens[1]);
+						leftCharactersList.get(leftCharactersList.size()-1).put(tokens[0],tokens[1]);
 						continue;
 						}
 					else if (1==tokens.length && 'P' == tokens[0].charAt(0))		// double check ('P' could possibly be the start of a game description line) to make sure we are at the start of a character description block
 						{
-						newCharachter = true;
-						characterList.add(new HashMap<String,String>());
+						newCharacter = true;
+						leftCharactersList.add(new HashMap<String,String>());
 						continue;
 						}
 					else {															// we are at a game description block
-						newCharachter = false;
+						newCharacter = false;
 						possibleAttr.put(tokens[0],tokens[1].split(delimiter));
 						continue;
 						}
@@ -129,7 +136,7 @@ abstract class ParentPlayer
 		int characterNum = 1;
 		System.out.println("\nGame character set:");
 
-		for (HashMap hm : characterList)
+		for (HashMap hm : leftCharactersList)
 			{
 			Set keys = hm.keySet();
 			String key;
