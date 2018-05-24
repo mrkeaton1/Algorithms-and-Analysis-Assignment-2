@@ -45,32 +45,40 @@ abstract class ParentPlayer
 	{
 	private static final Boolean DEBUG = true;
 
-	protected List<HashMap<String,String>> leftCharactersList;						// list of hashmaps for the LEFTOVER game characters (character number = list index +1), each of which maps their attributes to their values
+	// HashMap that maps names of LEFTOVER game characters
+	// to a HashMap of their Attribute-Value pairs
+	// => HashMap of Key:Character-Name, Values:(HashMap of Key:Character-Attribute, Value:Attribute-Value)
+	protected HashMap<String,HashMap<String,String>> leftCharactersMap;
 	protected int numLeftCharacters = 0;
-	protected HashMap<String,String[]> possibleAttr;								// maps possible attributes to a list of their possible values
 
-	// this should be set by constructor of Player-classes who inherit from us
+	// HashMap that maps all possible attributes
+	// to a HashMap of their possible/leftover values and the count of players who have that value
+	// => HashMap of Key:Attribute, Values:(HashMap of Key:Attribute-Value, Value:Count)
+	protected HashMap<String,HashMap<String,Integer>> leftValuesCount;
+
+	// the following should be set by constructor of Player-classes who inherit from us
 	protected String chosenCharacterName = "";
 	protected HashMap<String,String> chosenCharacterMap;
 
 	protected ParentPlayer(String filename)
 		{
-		leftCharactersList = new ArrayList<HashMap<String,String>>();
-		possibleAttr = new HashMap<String,String[]>();
-		loadGame(filename);
-		chosenCharacterMap = new HashMap<String,String>(possibleAttr.size());		// all characters should have all possible attributes
-		numLeftCharacters = leftCharactersList.size();								// in the beginning, all of the characters are considered
+		leftCharactersMap = new HashMap<String,HashMap<String,String>>();
+		leftValuesCount = new HashMap<String,HashMap<String,Integer>>();
+		loadGame(filename);															// this fills leftValuesCount and leftCharactersMap
+		chosenCharacterMap = new HashMap<String,String>(leftValuesCount.size());	// all characters should have all possible attributes
+		numLeftCharacters = leftCharactersMap.size();								// in the beginning, all of the characters are considered
 		}
 
 	private void loadGame(String filename)
 		{
 		try ( BufferedReader reader = new BufferedReader(new FileReader(filename)) )
 			{
-			long startTime = System.nanoTime();
+			if (DEBUG) long startTime = System.nanoTime();
 			String line;
 			String delimiter = " ";
 			String[] tokens;
-			boolean newCharacter = false;
+			String[] attrValues;
+			String currentCharacterName = "";
 
 			while ((line = reader.readLine()) != null)
 				{
@@ -78,30 +86,39 @@ abstract class ParentPlayer
 																					// (containing all values of an attribute in the second element for the case of game description)
 				if (tokens[0].equals(""))											// we are at the end of any description
 					{
-					newCharacter = false;
+					currentCharacterName = "";
 					continue;
 					}
 				else {
-					if (newCharacter)												// we are in the middle of character description
+					if (!currentCharacterName.equals(""))							// we are in the middle of character description
 						{
-						leftCharactersList.get(leftCharactersList.size()-1).put(tokens[0],tokens[1]);
+						leftCharactersMap.get(currentCharacterName).put(tokens[0],tokens[1]);
 						continue;
 						}
-					else if (1==tokens.length && 'P' == tokens[0].charAt(0))		// double check ('P' could possibly be the start of a game description line) to make sure we are at the start of a character description block
+					else if (1==tokens.length)										// we are at the start of a character description block, whenever there is only one word on a line (and its not an empty string "")
 						{
-						newCharacter = true;
-						leftCharactersList.add(new HashMap<String,String>());
+						currentCharacterName = tokens[0];
+						leftCharactersMap.put(currentCharacterName,new HashMap<String,String>());
 						continue;
 						}
 					else {															// we are at a game description block
-						newCharacter = false;
-						possibleAttr.put(tokens[0],tokens[1].split(delimiter));
+						currentCharacterName = "";
+						attrValues = tokens[1].split(delimiter);
+						leftValuesCount.put(tokens[0],new HashMap<String,Integer>(attrValues.length));
+						for (String val : attrValues)
+							{
+							leftValuesCount.get(tokens[0]).put(val,0);				// 0 is the initial count of values
+							}
 						continue;
 						}
 					}
 				}
-			long endTime = System.nanoTime();
-			if(DEBUG) System.out.println("Time to load game config file: " + (double)(endTime-startTime)*Math.pow(10,-9) + " s");
+
+			if(DEBUG)
+				{
+				long endTime = System.nanoTime();
+				System.out.println("Time to load game config file: " + (double)(endTime-startTime)*Math.pow(10,-9) + " s");
+				}
 			}
 		catch (FileNotFoundException ex) {
 			System.err.println("File " + filename + " not found.");
@@ -131,33 +148,42 @@ abstract class ParentPlayer
 
 	protected void printGameAttributes()
 		{
-		Set keys = possibleAttr.keySet();
-		String key;
-		System.out.println("\nGame attribute set:");
+		String innerKey, outerKey;
+		Set outerKeys = leftValuesCount.keySet();
+		Set innerKeys;
 
-		for (Iterator it = keys.iterator(); it.hasNext(); )
+		System.out.println("\nGame attribute set:");
+		for (Iterator it1 = outerKeys.iterator(); it1.hasNext(); )
 			{
-			key = (String) it.next();
-			System.out.println(key + " - " + Arrays.toString(possibleAttr.get(key)));
+			innerKey = (String) it1.next();
+			System.out.print(innerKey + " - ");
+			innerKeys = leftValuesCount.get(innerKey).keySet();
+			for (Iterator it2 = innerKeys.iterator(); it2.hasNext(); )
+				{
+				outerKey = it2.next();
+				System.out.print(" " + outerKey + ":" + String.valueOf(leftValuesCount.get(innerKey).get(outerKey)));
+				}
+			System.out.print("\n");
 			}
 		return;
 		}
 
 	protected void printGameCharacters()
 		{
-		int characterNum = 1;
+		String innerKey, outerKey;
+		Set outerKeys = leftValuesCount.keySet();
+		Set innerKeys;
+
 		System.out.println("\nGame character set:");
-
-		for (HashMap hm : leftCharactersList)
+		for (Iterator it1 = outerKeys.iterator(); it1.hasNext(); )
 			{
-			Set keys = hm.keySet();
-			String key;
-			System.out.println("P" + characterNum++);
-
-			for (Iterator it = keys.iterator(); it.hasNext(); )
+			innerKey = (String) it1.next();
+			System.out.println(innerKey);
+			innerKeys = leftValuesCount.get(innerKey).keySet();
+			for (Iterator it2 = innerKeys.iterator(); it2.hasNext(); )
 				{
-				key = (String) it.next();
-				System.out.println(key + " - " + Arrays.toString(possibleAttr.get(key)));
+				outerKey = it2.next();
+				System.out.println(outerKey + " " + leftValuesCount.get(innerKey).get(outerKey));
 				}
 			}
 		return;
