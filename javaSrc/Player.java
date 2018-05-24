@@ -64,7 +64,8 @@ abstract class ParentPlayer
 		{
 		leftCharactersMap = new HashMap<String,HashMap<String,String>>();
 		leftValuesCount = new HashMap<String,HashMap<String,Integer>>();
-		loadGame(filename);															// this fills leftValuesCount and leftCharactersMap
+		loadGame(filename);															// this fills leftValuesCount (with default 0 counts) and leftCharactersMap
+		fillLeftValuesCount();
 		chosenCharacterMap = new HashMap<String,String>(leftValuesCount.size());	// all characters should have all possible attributes
 		numLeftCharacters = leftCharactersMap.size();								// in the beginning, all of the characters are considered
 		}
@@ -73,7 +74,7 @@ abstract class ParentPlayer
 		{
 		try ( BufferedReader reader = new BufferedReader(new FileReader(filename)) )
 			{
-			if (DEBUG) long startTime = System.nanoTime();
+			long startTime = System.nanoTime();
 			String line;
 			String delimiter = " ";
 			String[] tokens;
@@ -136,7 +137,7 @@ abstract class ParentPlayer
 
 	// Receives the guess from other player and returns a true or false based off the player's character and attribute-value pairs
 	public boolean answer(Guess currGuess) {
-		if (currGuess.getType().equals(Attribute)){ // The opponent is guessing the attribute-value pair
+		if (currGuess.getType().equals(Guess.GuessType.Attribute)){ // The opponent is guessing the attribute-value pair
 			String guessAtt = currGuess.getAttribute();
 			String guessVal = currGuess.getValue();
 			return chosenCharacterMap.get(guessAtt).equals(guessVal); //returns true if the player's character contains the attribute-value pair.
@@ -145,6 +146,18 @@ abstract class ParentPlayer
 			return currGuess.getValue().equals(chosenCharacterName); //returns true if the opponent guesses the player's character
 		}
 	} // end of answer()
+
+	private void fillLeftValuesCount()
+		{
+		for (Map.Entry<String,HashMap<String,String>> character : leftCharactersMap.entrySet())
+			{
+			for (Map.Entry<String,String> pair : character.getValue().entrySet())
+				{
+				leftValuesCount.get(pair.getKey()).put(pair.getValue(), 1 + leftValuesCount.get(pair.getKey()).get(pair.getValue()) );
+				}
+			}
+
+		}
 
 	protected void printGameAttributes()
 		{
@@ -160,7 +173,7 @@ abstract class ParentPlayer
 			innerKeys = leftValuesCount.get(innerKey).keySet();
 			for (Iterator it2 = innerKeys.iterator(); it2.hasNext(); )
 				{
-				outerKey = it2.next();
+				outerKey = (String) it2.next();
 				System.out.print(" " + outerKey + ":" + String.valueOf(leftValuesCount.get(innerKey).get(outerKey)));
 				}
 			System.out.print("\n");
@@ -182,7 +195,7 @@ abstract class ParentPlayer
 			innerKeys = leftValuesCount.get(innerKey).keySet();
 			for (Iterator it2 = innerKeys.iterator(); it2.hasNext(); )
 				{
-				outerKey = it2.next();
+				outerKey = (String) it2.next();
 				System.out.println(outerKey + " " + leftValuesCount.get(innerKey).get(outerKey));
 				}
 			}

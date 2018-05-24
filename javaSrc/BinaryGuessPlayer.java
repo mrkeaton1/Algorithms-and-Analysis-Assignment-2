@@ -10,11 +10,6 @@ import java.util.*;
  */
 public class BinaryGuessPlayer extends ParentPlayer implements Player
 	{
-	// this holds the number of characters that have a value of a given attribute
-	// => HashMap of Key:Attribute, Values:(HashMap of Key:Attribute-Value, Value:Count)
-	private HashMap<String,HashMap<String,Integer>> attributeCount;
-
-
 	/**
 	 * Loads the game configuration from gameFilename, and also store the chosen
 	 * person.
@@ -32,18 +27,7 @@ public class BinaryGuessPlayer extends ParentPlayer implements Player
 
 		// initialize the chosen player, needed for answering questions
 		this.chosenCharacterName = chosenName;
-		this.chosenCharacterMap = leftCharactersList.get(Integer.parseInt(chosenCharacterName.substring(1)));	// substring = number of character, without the 'P'
-
-		// initialize attributeCount HashMap
-		attributeCount = new HashMap<String,HashMap<String,Integer>>(possibleAttr.size());
-		for (Map.Entry<String,String[]> entry : possibleAttr.entrySet())
-			{
-			attributeCount.put(entry.getKey(), new HashMap<String,Integer>());
-			for(String value : entry.getValue())
-				{
-				attributeCount.get(entry.getKey()).put(value,0);
-				}
-			}
+		this.chosenCharacterMap = leftCharactersMap.get(chosenName);
 
 		// testing:
 		// printGameAttributes();
@@ -53,10 +37,30 @@ public class BinaryGuessPlayer extends ParentPlayer implements Player
 
 	public Guess guess()
 		{
-		// placeholder, replace
-		return new Guess(Guess.GuessType.Person, "", "Placeholder");
-	} // end of guess()
+		float targetCount = leftCharactersMap.size()/2;								// we care about odd/even number of characters later
+		int currentBestCount = 0;
+		String currentBestAttribute = "";
+		String currentBestValue = "";
 
+		for (Map.Entry<String,HashMap<String,Integer>> attribute : leftValuesCount.entrySet())
+			{
+			for (Map.Entry<String,Integer> pair : attribute.getValue().entrySet())
+				{
+				if (pair.getValue()==Math.floor(targetCount) || pair.getValue()==Math.ceil(targetCount))	// we found a halfing attribute; in case of odd number of characters, we want to round up and down for comparison
+					{
+					return new Guess(Guess.GuessType.Attribute, attribute.getKey(), pair.getKey());
+					}
+				else if (Math.abs(pair.getValue()-currentBestCount) < Math.abs(targetCount-currentBestCount))
+					{
+					currentBestCount = pair.getValue();
+					currentBestAttribute = attribute.getKey();
+					currentBestValue = pair.getKey();
+					}
+				else continue;
+				}
+			}
+		return new Guess(Guess.GuessType.Attribute, currentBestAttribute, currentBestValue);
+		}
 
 	public boolean answer(Guess currGuess) {
 
@@ -71,29 +75,5 @@ public class BinaryGuessPlayer extends ParentPlayer implements Player
 		return true;
 	} // end of receiveAnswer()
 
-	private String determineHalfingAttribute()
-		{
-		// => HashMap of Key:Attribute, Values:(HashMap of Key:Attribute-Value, Value:Count)
-		HashMap<String,Integer> currentValue;
-
-		// // @QUESTION why doesnt the following work with a foreach loop?
-		// for (HashMap character : leftCharactersList)
-			// {
-			// for (Map.Entry<String,String> entry : character.entrySet())
-
-		for (int i=0;i<leftCharactersList.size();++i)
-			{
-			for (Map.Entry<String,String> entry : leftCharactersList.get(i).entrySet())
-				{
-				currentValue = attributeCount.get(entry.getKey());
-				currentValue.put(entry.getValue(), currentValue.get(entry.getValue())+1 );
-				}
-			}
-		for (Map.Entry<String,HashMap<String,Integer>> entry : attributeCount.entrySet())
-			{
-
-			}
-		return "";
-		}
 
 } // end of class BinaryGuessPlayer
