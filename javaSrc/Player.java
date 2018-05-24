@@ -135,6 +135,41 @@ abstract class ParentPlayer
 			}
 		}
 
+
+
+	// Removes the specified character from the list of remaining characters,
+	// and updates the count for each value the character possessed in leftValuesCount.
+	protected void removeCharacter(String characterName){
+	   HashMap<String,String> removeChar = new HashMap<String,String>();
+	   for(Map.Entry<String,String> e : removeChar.entrySet()) { // Update leftValuesCount by subtracting 1 from the counts of the values contained in the character being removed
+	      String att = e.getKey();
+	      String val = e.getValue();
+	      leftValuesCount.get(att).put(val, leftValuesCount.get(att).get(val) - 1);
+	   }
+	   leftCharactersMap.remove(characterName);
+	   --numLeftCharacters;
+	}
+
+	// Updates leftValuesCount by removing any values with count = 0 or numLeftCharacters,
+	// as well as removing any attributes with no remaining values.
+	protected void removeImpossibleAtts(){
+	   // Removing values
+	   for(Map.Entry<String, HashMap<String,Integer>> e1 : leftValuesCount.entrySet()){
+	      String att = e1.getKey();
+	      HashMap<String,Integer> vals = e1.getValue();
+	      for(Map.Entry<String,Integer> e2 : vals.entrySet()){ // Removing values
+	         String currVal = e2.getKey();
+	         int currValCount = e2.getValue();
+	         if(currValCount == 0 || currValCount == numLeftCharacters){
+	            leftValuesCount.get(att).remove(currVal);
+	         }
+	      }
+	      if(leftValuesCount.get(att).size() == 0){ // Removing attributes
+	         leftValuesCount.remove(att);
+	      }
+	   }
+	}
+
 	// Receives the guess from other player and returns a true or false based off the player's character and attribute-value pairs
 	public boolean answer(Guess currGuess) {
 		if (currGuess.getType().equals(Guess.GuessType.Attribute)){ // The opponent is guessing the attribute-value pair

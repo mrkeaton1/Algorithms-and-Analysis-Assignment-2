@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.*;
 
 /**
  * Random guessing player.
@@ -9,7 +10,6 @@ import java.io.*;
  */
 public class RandomGuessPlayer extends ParentPlayer implements Player
 	{
-	private String chosenCharacter = "";
 
 	/**
 	 * Loads the game configuration from gameFilename, and also store the chosen
@@ -32,22 +32,48 @@ public class RandomGuessPlayer extends ParentPlayer implements Player
 	// of the remaining characters, and then creates a guess from these options.
 	// When there is one character remaining to make guesses from, the player will select that character.
 	public Guess guess() {
-		if(numLeftCharacters = 1){ // Make a guess on the character
-			return Guess(Player, "", "P1"); // ***Change the 3rd parameter to align with leftCharactersList implementation update
+		if(numLeftCharacters == 1){ // Make a guess on the character
+			return new Guess(Guess.GuessType.Player, "", "P1"); // ***Change the 3rd parameter to align with leftCharactersList implementation update
 		}
 		else{ // Randomly guess a valid attribute-value pair
-			String[] attributes = (String[])possibleAttr.keySet().toArray();
-			String randAtt = attributes[Math.random()*attributes.length];
-			String[] randAttVals = possibleAttr.get(randAtt);
-			String randVal = randAttVals[Math.random()*randAttVals.length];
-			return Guess(Attribute, randAtt, randVal);
+			String[] attributes = (String[])leftValuesCount.keySet().toArray(); //***String array casting may be unnecessary
+			String randAtt = attributes[(int)(Math.random()*attributes.length)];
+			String[] randAttVals = (String[])leftValuesCount.get(randAtt).keySet().toArray(); //***String array casting may be unnecessary
+			String randVal = randAttVals[(int)(Math.random()*randAttVals.length)];
+			return new Guess(Guess.GuessType.Attribute, randAtt, randVal);
 		}
 	} // end of guess()
 
 	public boolean receiveAnswer(Guess currGuess, boolean answer) {
-
-		// placeholder, replace
-		return true;
+		if(currGuess.getType().equals(Guess.GuessType.Player) && answer) return true;
+		else if(currGuess.getType().equals(Guess.GuessType.Player) && !answer){
+			return false; //this situation will never actually happen, as players will only guess characters when there is only one remaining candidate.
+		}
+		else{
+			String guessAtt = currGuess.getAttribute();
+			String guessVal = currGuess.getValue();
+			if(answer){ // The attribute guess was correct
+				for(Map.Entry<String,HashMap<String,String>> leftCharacter : leftCharactersMap.entrySet()){ // Remove all characters that don't contain the guessed attribute
+					HashMap<String,String> currCharacter = leftCharacter.getValue();
+					if(!currCharacter.get(guessAtt).equals(guessVal)){
+						//***replace following two lines with RemoveCharacter
+						leftCharactersMap.remove(currCharacter);
+						numLeftCharacters--;
+					}
+				}
+			}
+			else{ // The attribute guess was incorrect
+				for(Map.Entry<String,HashMap<String,String>> leftCharacter : leftCharactersMap.entrySet()){ // Remove all characters that don't contain the guessed attribute
+					HashMap<String,String> currCharacter = leftCharacter.getValue();
+					if(currCharacter.get(guessAtt).equals(guessVal)){
+						//***replace following two lines with RemoveCharacter
+						leftCharactersMap.remove(currCharacter);
+						numLeftCharacters--;
+					}
+				}
+			}
+			return false;
+		}
 	} // end of receiveAnswer()
 
 } // end of class RandomGuessPlayer
