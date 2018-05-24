@@ -17,13 +17,13 @@ public interface Player
 	abstract public Guess guess();
 
 
-	/**
-	 * Ask player for an answer/response to a guess.
-	 *
-	 * @param currGuess Opponent's guess.
-	 * @return True (yes) or False (no) to opponent's guess.
-	 */
-	abstract public boolean answer(Guess currGuess);
+	// /**
+	//  * Ask player for an answer/response to a guess.
+	//  *
+	//  * @param currGuess Opponent's guess.
+	//  * @return True (yes) or False (no) to opponent's guess.
+	//  */
+	// abstract public boolean answer(Guess currGuess);
 
 
 	/**
@@ -116,6 +116,18 @@ abstract class ParentPlayer
 			return;
 			}
 		}
+
+	// Receives the guess from other player and returns a true or false based off the player's character and attribute-value pairs
+	public boolean answer(Guess currGuess) {
+		if (currGuess.getType().equals(Attribute)){ // The opponent is guessing the attribute-value pair
+			String guessAtt = currGuess.getAttribute();
+			String guessVal = currGuess.getValue();
+			return chosenCharacterMap.get(guessAtt).equals(guessVal); //returns true if the player's character contains the attribute-value pair.
+		}
+		else{ // The opponent is guessing the character
+			return currGuess.getValue().equals(chosenCharacterName); //returns true if the opponent guesses the player's character
+		}
+	} // end of answer()
 
 	protected void printGameAttributes()
 		{

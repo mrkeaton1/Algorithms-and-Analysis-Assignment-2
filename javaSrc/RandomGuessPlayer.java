@@ -28,20 +28,21 @@ public class RandomGuessPlayer extends ParentPlayer implements Player
 		this.chosenCharacter = chosenName;
 		} // end of RandomGuessPlayer()
 
-
+	// The player randomly selects an attribute and value from the possible attributes and values
+	// of the remaining characters, and then creates a guess from these options.
+	// When there is one character remaining to make guesses from, the player will select that character.
 	public Guess guess() {
-
-		// placeholder, replace
-		return new Guess(Guess.GuessType.Person, "", "Placeholder");
+		if(numLeftCharacters = 1){ // Make a guess on the character
+			return Guess(Player, "", "P1"); // ***Change the 3rd parameter to align with leftCharactersList implementation update
+		}
+		else{ // Randomly guess a valid attribute-value pair
+			String[] attributes = (String[])possibleAttr.keySet().toArray();
+			String randAtt = attributes[Math.random()*attributes.length];
+			String[] randAttVals = possibleAttr.get(randAtt);
+			String randVal = randAttVals[Math.random()*randAttVals.length];
+			return Guess(Attribute, randAtt, randVal);
+		}
 	} // end of guess()
-
-
-	public boolean answer(Guess currGuess) {
-
-		// placeholder, replace
-		return false;
-	} // end of answer()
-
 
 	public boolean receiveAnswer(Guess currGuess, boolean answer) {
 

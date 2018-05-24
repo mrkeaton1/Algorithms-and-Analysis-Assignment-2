@@ -99,7 +99,7 @@ public class GuessWho
                     player1 = new BinaryGuessPlayer(gameFilename, player1AssignedName);
                     break;
                 default:
-                    System.err.println("Uknown player 1 type option: " + player1Type);
+                    System.err.println("Unknown player 1 type option: " + player1Type);
                     usage();
             }
 
@@ -115,7 +115,7 @@ public class GuessWho
                     player2 = new BinaryGuessPlayer(gameFilename, player2AssignedName);
                     break;
                 default:
-                    System.err.println("Uknown player 2 type option: " + player2Type);
+                    System.err.println("Unknown player 2 type option: " + player2Type);
                     usage();
             }
 
